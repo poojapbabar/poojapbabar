@@ -1,0 +1,618 @@
+
+
+
+2. Introduction
+Most of the times it is observed that there is a transferring mistake due to choosing wrong option of sending and receiving files via in different modes which sometime may cause an corruption of file due to invalid references.
+
+When the file is been written and it is just saved in memory cache and is not been saved in main memory or secondary memory, and when the OS reboots or loses power the data in the memory cache may get wipe out and we would unable to recover the file which is been crashed.
+
+So we chose our open challenge to recover such corrupted gzip files in Linux environment.
+We tried to explore various archive commands as well as Linux environment in order to find a solution that contributes towards improving the functionality of Linux operating system.
+
+
+3. Problem Statement
+
+Recovering files/directories from broken tarballs/archive files of type gzip and bzip in linux.
+To deal with archive files by using tar,tar.gz, and tar.bz2 compression. It is important to create a hierarchy of memory in between to store the crashed data which is being randomly disoriented having no relation to be recovered from the original file.
+
+4. Solutions
+
+1st Solution :
+99% of the corrupted gzip archives are caused by transferring the file via the FTP in ASCII mode instead of binary mode. In that case we can re-transfer the file in the correct mode.
+
+
+2nd Solution :
+
+GZRECOVER
+
+•	We can make use of gzrecover which can be used to recover data from a corrupted gzip file.
+•	gzrecover is a program that will attempt to extract any readable data out of a gzip file that has been corrupted.
+
+
+Syntax : gzrecover [ -hpsVv ] [-o <filename>] [filename]
+If the file input is not specific, gzrecover reads from standard input and by default gzrecover writes its output to <filename>.recovered. If the original filename ended in .gz then that extension is removed.
+
+Options will explain the above command line of gzrecover
+-p       Write output to standard output for pipeline support
+-o <name>        Sets the output file name
+-s       Splits each recovered segment into its own file, with numeric suffixes
+-h    Print the help message
+-v     Verbose logging on
+-V    Print version number
+
+Gzrecover files which have been recovered runs slower than regular gunzip files. The corruption of the file is more, then more slowly it runs. Running gzrecover on an uncorrupted gzip file simply uncompresses it. Replacing gzrecover for gunzip is not recommended regularly. Recovered data should be manually verified.
+
+Screenshots
+
+After a file is created and to corrupt that file we use this below command
+dd if=/dev/urandom of=file.tar.gz bs=1024 seek=$((RANDOM%10)) count=1 conv=notrunc
+To check whether the file is corrupted or not.
+
+We use this command :  7z t file.tar.gz.
+ 
+
+
+Commands Used for Creation of tar file till Recovery of the file
+
+          The Linux ‘tar’ stands for tape archive, and is used to create an Archive and extract the Archive files. Tar commands in Linux is one of the important commands which provides archiving functionality in Linux. We can use Linux tar command to create compressed or uncompressed Archive files and also maintain and modify them. 
+
+
+
+Syntax: tar [options] [archive-file] [file or directory to be archived]
+-c : Creates Archive 
+-x : Extract the archive 
+-f : creates archive with given filename 
+-t : displays or lists files in archived file 
+-u : archives and adds to an existing archive file 
+-v : Displays Verbose Information 
+-A : Concatenates the archive files 
+-z : zip, tells tar command that creates tar file using gzip 
+-j : filter archive tar file using tbzip 
+-W : Verify a archive file 
+-r : update or add file or directory in already existed .tar file 
+1. Creating an uncompressed tar Archive using option -cvf : This command creates a tar file called file.tar which is the Archive of all .c files in current directory. 
+$ tar cvf file.tar *.c
+2. Extracting files from Archive using option -xvf : This command extracts files from Archives. 
+$ tar xvf file.tar
+3. gzip compression on the tar Archive, using option -z : This command creates a tar file called file.tar.gz which is the Archive of .c files.  
+$ tar cvzf file.tar.gz *.c
+4. Extracting a gzip tar Archive *.tar.gz using option -xvzf : This command extracts files from tar archived file.tar.gz files.  
+$ tar xvzf file.tar.gz
+5. Creating compressed tar archive file in Linux using option -j : This command compresses and creates archive file less than the size of the gzip. Both compress and decompress takes more time then gzip. 
+$ tar cvfj file.tar.tbz example.cpp
+
+6. Untar single tar file or specified directory in Linux : This command will Untar a file in current directory or in a specified directory using -C option.  
+$ tar xvfj file.tar 
+or 
+$ tar xvfj file.tar -C path of file in directory 
+
+7. Untar multiple .tar, .tar.gz, .tar.tbz file in Linux : This command will extract or untar multiple files from the tar, tar.gz and tar.bz2 archive file. For example the above command will extract “fileA” “fileB” from the archive files.  
+$ tar xvf file.tar "fileA" "fileB" 
+or 
+$ tar zxvf file1.tar.gz "fileA" "fileB"
+or 
+$ tar jxvf file2.tar.tbz "fileA" "fileB"
+8. Check size of existing tar, tar.gz, tar.tbz file in Linux : The above command will display the size of archive file in Kilobytes(KB).
+$ tar czf file.tar | wc -c
+9. Update existing tar file in Linux  
+$ tar rvf file.tar *.c
+10. list the contents and specify the tarfile using option -tf : This command will list the entire list of archived file. We can also list for specific content in a tarfile  
+$ tar tf file.tar.
+11. Recovering of the Corrupted Tar file : If the .gz file is a tar archive, then we go for GNU cpio which will extract tar files or copy files from one place to another and skip the corrupted bytes. 
+To extract files, the following command is used : 
+cpio -F <filename from gzrecover output>  -i  -v
+
+STEPS:
+STEP 1: Install the gzrt tool by typing in the terminal:
+Sudo apt-get install gzrt
+STEP 2: Now move to the directory of corrupted file using command ‘cd’
+STEP 3: Execute command on corrupted file:>
+  gzrecover copied.tar.gz
+This command will create a .recovered file in the current directory.
+STEP 4: After recovery, extract the files:
+cpio -F copied.tar.recovered -i -v
+Whether you want to recover .tar.gz file or .tgz file, the procedure will be the same though you have to just rename the extension from .tgz to .tar.gz.
+The amount of recoverable data may depend upon the cause of corruption.
+
+
+ 
+
+
+ 
+
+
+5. References
+
+[1] Open Source Guide, Github, https://opensource.guide/how-to-contribute/, Last Accessed: 06 April 2022.
+[2] Linux Forum page, https://www.linux.org/forums/, Last Accessed: 06 April 2022
+[3] Open Source Friday, https://opensourcefriday.com/, Last Accessed: 06 April 2022
+[4] Shukla, A. K., Sharma, R., & Muhuri, P. K. (2018). A review of the scopes and challenges of modern real-time operating systems. International Journal of Embedded and Real-Time Communication Systems (IJERTCS), 9(1), 66-82.
+[5] gzip Recovery Toolkit aka gzrecover, https://github.com/arenn/gzrt
+[6] https://mandeeps.me/recover-corrupted-tar-gz-on-ubuntu/
+
+
+Appendix
+•	gzrecover will attempt to skip over corrupted data in a gzip archive, allowing the remaining data to be recovered. 
+•	If the compressed file was tar archive then standard tar program will probably not be able to extract all of the files of the recoved file. In such cases use GNU cpio. GNU cpio copies files into or out of a cpio or tar archive. 
+•	GNU cpio supports the following archive formats: binary, old ASCII, new ASCII, crc, HPUX binary, HPUX old ASCII, old tar, and POSIX.1 tar.
+     
+Code and it’s Interpretation
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <zlib.h>
+
+#define VERSION "0.8"
+
+/** Global constants */
+#define DEFAULT_INBUF_SIZE (1024*1024)
+#define DEFAULT_OUTBUF_SIZE (64*1024)
+
+static const char *optstring = "ho:psVv";
+static const char *usage = "Usage: gzrecover [-hpsVv] [-o <outfile>] [infile]";
+
+/** Global Variables */
+static int split_mode = 0;
+static int verbose_mode = 0;
+static int outfile_specified = 0;
+static int stdout_specified = 0;
+static char *user_outname;
+static size_t inbuf_size = DEFAULT_INBUF_SIZE;
+
+static size_t outbuf_size = DEFAULT_OUTBUF_SIZE;
+
+/** Display usage string and exit
+   It enters into the file the usage :
+   It displays the functionalities that GZ Recover
+   will have performed till that point of time.**/
+void show_usage_and_exit(int exit_status)
+{
+    fprintf(stderr, "%s\n", usage);
+    exit(exit_status);
+}
+
+
+#define throw_error(callname) perror(callname); exit(1);
+
+/** Read bytes from a file - restart on EINTR */
+ssize_t read_internal(int fd, void *buf, size_t count)
+{
+    ssize_t rc = 0;
+
+    for (;;)
+    {
+        rc = read(fd, buf, count);
+
+        if ((rc == -1) && ((errno == EINTR) || (errno == EAGAIN)))
+            continue;
+
+        return(rc);
+    }
+}
+
+/** Open output file for writing.
+This output file consists of all the recoverable content from the corrupted     file**/
+int open_outfile(char *infile)
+{
+    int ofd;
+    char *outfile, *ptr;
+    static int suffix = 1;
+
+    /** Just return standard output if that is specified **/
+    if (stdout_specified)
+        return STDOUT_FILENO;
+
+    /** Build the output file name **/
+    if (outfile_specified)
+        outfile = (char *)malloc(strlen(user_outname) + 9);
+    else
+        outfile = (char *)malloc(strlen(infile) + 25);
+    if(outfile == 0)
+    {
+        throw_error("malloc")
+    }
+
+    if (!outfile_specified) /** Strip of .gz unless user specified name */
+    {
+        ptr = strstr(infile, ".gz");
+        if (ptr)
+            *ptr = '\0'; /** Bad form to directly edit command line **/
+        ptr = strrchr(infile, '/'); /** Kill pathname **/
+
+
+        if (ptr)
+            infile = ptr+1;
+    }
+
+    if (outfile_specified && split_mode)
+        sprintf(outfile, "%s.%d", user_outname, suffix++);
+    else if (outfile_specified)
+        strcpy(outfile, user_outname);
+    else if (split_mode)
+        sprintf(outfile, "%s.recovered.%d", infile, suffix++);
+    else
+        sprintf(outfile, "%s.recovered", infile);
+
+    /** Open it up */
+    ofd = open(outfile, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
+    if( ofd == -1 )
+    {
+        throw_error("open")
+    }
+
+    if (verbose_mode)
+        fprintf(stderr, "Opened output file for writing: %s\n", outfile);
+
+    free(outfile);
+
+    return(ofd);
+}
+
+/** Initialize the zlib decompression engine
+   This engine will decompress the file that
+   later will be recovered **/
+void init_zlib(z_stream *d_stream, unsigned char *buffer, size_t bufsize)
+{
+    int rc;
+    memset(d_stream, 0, sizeof(z_stream));
+    d_stream->next_in = buffer;
+    d_stream->avail_in = bufsize;
+
+    rc = inflateInit2(d_stream, -15);
+    if (rc != Z_OK)
+    {
+        throw_error("inflateInit2");
+    }
+}
+
+/** This ensures that the corrupted or not so important parts of the header gets skipped in the recovered file **/
+void skip_gzip_header(z_stream *d_stream)
+{
+    char flags;
+    unsigned int len;
+
+    flags = d_stream->next_in[3];
+    d_stream->next_in += 10;
+    d_stream->avail_in -= 10;
+
+    if ((flags & 0x04) !=0) /** Extra field **/
+    {
+        len = (unsigned int)*d_stream->next_in;
+        len += ((unsigned int)*(d_stream->next_in)) << 8;
+        d_stream->next_in += (2 + len);
+        d_stream->avail_in -= (2 + len);
+    }
+
+    if ((flags & 0x08) != 0)  /** Orig Name **/
+    {
+        while(*d_stream->next_in != 0)
+        {
+            ++d_stream->next_in;
+            --d_stream->avail_in;
+        }
+        ++d_stream->next_in;
+        --d_stream->avail_in;
+    }
+
+    if ((flags & 0x10) != 0) /** Comment */
+        while(*d_stream->next_in != 0)
+        {
+            ++d_stream->next_in;
+            --d_stream->avail_in;
+        }
+
+    if ((flags & 0x02) != 0) /** Head CRC */
+    {
+        d_stream->next_in += 2;
+        d_stream->avail_in -= 2 ;
+    }
+}
+
+
+
+
+/** Main program driver */
+int main(int argc, char **argv)
+{
+    int opt, rc, rc2, ifd, ofd, founderr=0, foundgood=0;
+    ssize_t bytes_read=0, tot_written=0;
+    off_t errpos=0, errinc=0, readpos=0;
+    char *infile;
+    unsigned char *inbuf, *outbuf;
+    z_stream d_stream;
+
+    /** Parse options **/
+    while((opt = getopt(argc, argv, optstring)) != -1)
+    /** Here getopt is a built-in function where we pass main function argument(argc,argv) where argc is a size of argv, argv is a array of pointers
+to characters and optstring is a character array where in it checks for match with argv and if match is successfull then it returns the character else
+returns -1 and the result is stored in opt.**/
+    {
+        /** Depending on the character match with argv and optstring at that
+particular index it returns the character and stores it in opt and a switch case is used.**/
+       switch(opt)
+       {
+        case 'h':
+            show_usage_and_exit(0);
+            /**It shows an error message and exit the program.**/
+            break;
+
+        case 'o':
+            user_outname = optarg;
+            /** optarg indicates an optional parameter to a command line option.
+It  could be specified or not specified as well and it sets the    user outname output to optarg. Sets the output file name.**/
+            outfile_specified = 1;
+            /**After setting user outname the outfile specified is set as 1.**/
+            break;
+
+        case 'p':
+            stdout_specified = 1;
+            /**Write output to standard output for pipeline support.
+            the standard output specified is set as 1.**/
+            break;
+        case 's':
+            split_mode = 1;
+            /**Splits each recovered segment into its own file,
+            with numeric suffixes.
+            Set the split mode to 1.**/
+            break;
+
+        case 'v':
+            verbose_mode = 1;
+            /**Verbose logging on means the practice of recording to a
+            persistent medium as much information as you possibly can
+            about events that occurs while the software runs.
+            Set the verbose mode to 1.**/
+            break;
+
+        case 'V':
+            fprintf(stderr, "gzrecover %s\n", VERSION);
+/**It displays standard version number and prints in the file name    errno.h.**/
+            break;
+
+     default:
+            show_usage_and_exit(1);
+            /**It reports the successful termination/completion of the program**/
+        }
+    }
+
+    /** Either output to stdout (-p) or specify filename (-o) but not both **/
+    if (outfile_specified && stdout_specified)
+    {
+fprintf(stderr, "gzrecover: Cannot specify output filename (-o) and stdout (-p) simultaneously.\n");
+      show_usage_and_exit(1);
+    }
+
+    /** Allocate our read buffer **/
+    inbuf = (unsigned char *)malloc(inbuf_size);
+    if(inbuf == 0)
+    {
+        throw_error("malloc") //It is a standard error.
+    }
+
+    /** Open input file using name or set to standard input if no file specified 
+    Optind is the cursor where the cursor is pointing in the opened
+    file and initially points to 1.**/
+    if (optind == argc)
+    {
+        /**If file name is not set then the infile is set to standard input file and file descriptor is set to STDIN_FILENO.**/
+        infile = "stdin";
+        ifd = STDIN_FILENO;
+    }
+
+
+    else
+    {
+        /** If the file name is set then the infile is set to index of optind in argv and file descriptor is returned with input file in read mode only **/
+        infile = argv[optind];
+        ifd = open(infile, O_RDONLY);
+    }
+
+    if(ifd == -1)
+    {
+/**If file is not allocated then the ifd is set to -1 and throws and error and frees the inbuf.**/
+        free(inbuf);
+        throw_error("open")
+    }
+
+    if (verbose_mode)
+        /** Opened input file for reading and prints the above line in file.**/
+        fprintf(stderr, "Opened input file for reading: %s\n", infile);
+
+    /** Open output file & initialize output buffer **/
+    ofd = open_outfile(infile);
+    /** The ofd will get the value from the open_outfile function with input file parameter is passed.**/
+    outbuf = (unsigned char *)malloc(outbuf_size);
+    /** A memory is allocated dynamically and set to Out buffer. If it is zero then no memory is allocated and throws an error.**/
+    if(outbuf == 0)
+    {
+        throw_error("malloc")
+    }
+
+    /** Initialize zlib **/
+    /**The input file is read internally with input file descriptor ,input buffer and its size and sets
+    // it to bytes read variable.**/
+    bytes_read = read_internal(ifd, inbuf, inbuf_size);
+    /**If bytes that is read is -1 then it throws an error.**/
+    if(-1 == bytes_read)
+    {
+        throw_error("read")
+    }
+
+    /** If bytes read value is returned to 0 then the further verbose condition is checked and if it is successful then it prints the message to the file then the file descriptors are closed and free both input buffer and output buffer **/
+
+    if (bytes_read == 0)
+    {
+        if (verbose_mode)
+            fprintf(stderr, "File is empty\n");
+        close(ifd);
+        close(ofd);
+        free(inbuf);
+        free(outbuf);
+        return(0);
+    }
+    readpos = bytes_read;
+    /**the bytes that is read from input buffer is set to readpos variable.**/
+    init_zlib(&d_stream, inbuf, bytes_read);
+    /** Assume there's a valid gzip header at the beginning of the file **/
+    skip_gzip_header(&d_stream);
+
+    /** The following code is to decompress all the content that is valid **/
+    for (;;)
+    {
+        d_stream.next_out = outbuf;
+        d_stream.avail_out = outbuf_size;
+        rc = inflate(&d_stream, Z_NO_FLUSH);
+
+        /** we again set zlib to a byte next to the error location till we find the decompression happening at some point of time **/
+        if ((rc != Z_OK) && (rc != Z_STREAM_END))
+        {
+            foundgood = 0;
+/** here we set the founderr flag, as we discover our first error.and set the error flag also and reset the increment counter to 0 again
+      and read the data again if needed.**/
+
+            if (!founderr)
+            {
+                founderr = 1;
+                errpos = bytes_read - d_stream.avail_in;
+
+                if (verbose_mode)
+                    fprintf(stderr, "Found error at byte %d in input stream\n",
+                            (int)(readpos - (bytes_read - errpos)));
+
+                if (d_stream.avail_in == 0)
+                {
+                    bytes_read = read_internal(ifd, inbuf, inbuf_size);
+                    if( bytes_read == -1 )
+                    {
+                        throw_error("read")
+                    }
+                    if(bytes_read == 0)
+                        break;
+                    readpos += bytes_read;
+
+                    errinc = 0;
+                    inflateEnd(&d_stream);
+                    init_zlib(&d_stream, inbuf, bytes_read);
+                    continue;
+                }
+            }
+
+/** we may fall directly above to here until their is an requirement to re-read the stream again we set the error increment counter and re-initialize zlib from the point of first error plus where the increment counter is pointing which is usually started at one. We keep incrementing till we find good byte and if we don't find it we have to re-read the data. **/
+            inflateEnd(&d_stream);
+            ++errinc;
+
+            /** More left to try in our buffer **/
+            if (bytes_read > (size_t)(errpos+errinc))
+            {
+                init_zlib(&d_stream, inbuf+errpos+errinc, bytes_read - (errpos+errinc));
+            }
+            /** their is nothing to be done in this buffer read again **/
+            else
+            {
+                bytes_read = read_internal(ifd, inbuf, inbuf_size);
+                if(bytes_read == -1)
+                {
+                    throw_error("read")
+                }
+                if (bytes_read == 0)
+                    break;
+                readpos += bytes_read;
+
+                inflateEnd(&d_stream);
+                init_zlib(&d_stream, inbuf, bytes_read);
+
+/** Founder flag should be positive and errorinc and errorpos   should be reset **/
+                errpos = 0;
+                errinc = 0;
+            }
+
+            continue;
+        }
+
+        /** Here now at this ppoint we may have decompressed the dat ig nothing has gone wrong but if the founderr flag is active this means we have gone through an error state before and may have to recheck again in that region, we agin set the flags to initial values and also the increment pointers.
+If we have choosen the split mode before by writing -s we have to open increment of output files**/
+        if (founderr & !foundgood)
+        {
+            foundgood = 1;
+            founderr = 0;
+            errinc = 0;
+
+            if (verbose_mode)
+                fprintf(stderr, "Found good data at byte %d in input stream\n",
+                        (int)(readpos - (bytes_read - d_stream.avail_in)));
+
+            if (split_mode)
+            {
+                close(ofd);
+                ofd = open_outfile(infile);
+            }
+        }
+
+/** Write decompressed output - should really handle short write    counts **/
+        rc2 = write(ofd, outbuf, outbuf_size - d_stream.avail_out);
+        if ( rc2 == -1 )
+        {
+            throw_error("write")
+        }
+        tot_written += rc2;
+
+        /** We've exhausted our input buffer, read some more **/
+        if (d_stream.avail_in == 0)
+        {
+            bytes_read = read_internal(ifd, inbuf, inbuf_size);
+            if( bytes_read == -1 )
+            {
+                throw_error("read");
+            }
+            if (bytes_read == 0)
+                break;
+            readpos += bytes_read;
+
+            errinc = 0;
+            d_stream.next_in = inbuf;
+            d_stream.avail_in = bytes_read;
+        }
+
+        /** We should also alarm which could also be false by setting the pointer one byte past the alarm  **/
+        if (rc == Z_STREAM_END)
+        {
+            off_t tmppos = d_stream.avail_in;
+
+            inflateEnd(&d_stream);
+            if ((unsigned char *)d_stream.next_in == inbuf)
+            {
+                init_zlib(&d_stream, inbuf, bytes_read);
+            }
+            else
+            {
+                init_zlib(&d_stream, inbuf + (bytes_read - tmppos) + 1,
+                          tmppos + 1);
+            }
+
+            continue;
+        }
+    }
+
+    inflateEnd(&d_stream);
+
+    /** Close up files **/
+    close(ofd);
+    close(ifd);
+
+    if (verbose_mode)
+        fprintf(stderr, "Total decompressed output = %d bytes\n",  (int)tot_written);
+
+    free(inbuf);
+    free(outbuf);
+
+    return(0);
+}
+
+
+~*~*~*~*~*~*~*~
+
